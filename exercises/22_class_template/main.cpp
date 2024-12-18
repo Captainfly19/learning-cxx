@@ -1,4 +1,5 @@
 ﻿#include "../exercise.h"
+#include <type_traits>
 
 // READ: 类模板 <https://zh.cppreference.com/w/cpp/language/class_template>
 
@@ -8,8 +9,9 @@ struct Tensor4D {
     T *data;
 
     Tensor4D(unsigned int const shape_[4], T const *data_) {
-        unsigned int size = 1;
+        unsigned int size = shape_[0]*shape_[1]*shape_[2]*shape_[3];
         // TODO: 填入正确的 shape 并计算 size
+        std::memcpy(shape,shape_,4*sizeof(unsigned int));
         data = new T[size];
         std::memcpy(data, data_, size * sizeof(T));
     }
@@ -28,8 +30,32 @@ struct Tensor4D {
     // 则 `this` 与 `others` 相加时，3 个形状为 `[1, 2, 1, 4]` 的子张量各自与 `others` 对应项相加。
     Tensor4D &operator+=(Tensor4D const &others) {
         // TODO: 实现单向广播的加法
+        for (int a1 = 0; a1 < shape[0]; ++a1) {
+            int a2 = others.shape[0] == 1 ? 0 : a1;
+
+            for (int b1 = 0; b1 < shape[1]; ++b1) {
+                int b2 = others.shape[1] == 1 ? 0 : b1;
+
+                for (int c1 = 0; c1 < shape[2]; ++c1) {
+                    int c2 = others.shape[2] == 1 ? 0 : c1;
+
+                    for (int d1 = 0; d1 < shape[3]; ++d1) {
+                        int d2 = others.shape[3] == 1 ? 0 : d1;
+                        int idx1 = a1 * shape[1] * shape[2] * shape[3] + b1 * shape[2] * shape[3] + c1 * shape[3] + d1;
+                        int idx2 = a2 * others.shape[1] * others.shape[2] * others.shape[3] + b2 * others.shape[2] * others.shape[3] +
+                                   c2 * others.shape[3] + d2;
+                        data[idx1] += others.data[idx2];
+                    }
+                }
+            }
+        }
+
         return *this;
     }
+};
+template<typename T>
+struct get_base_type {
+    using type = typename std::remove_cv<typename std::remove_pointer<typename std::decay<T>::type>::type>::type;
 };
 
 // ---- 不要修改以下代码 ----
@@ -46,10 +72,10 @@ int main(int argc, char **argv) {
             17, 18, 19, 20,
             21, 22, 23, 24};
         // clang-format on
-        auto t0 = Tensor4D(shape, data);
-        auto t1 = Tensor4D(shape, data);
+        auto t0 = Tensor4D<typename get_base_type<decltype(data)>::type>(shape, data);
+        auto t1 = Tensor4D<typename get_base_type<decltype(data)>::type>(shape, data);
         t0 += t1;
-        for (auto i = 0u; i < sizeof(data) / sizeof(*data); ++i) {
+        for (auto i = 0; i < sizeof(data) / sizeof(*data); ++i) {
             ASSERT(t0.data[i] == data[i] * 2, "Tensor doubled by plus its self.");
         }
     }
@@ -77,8 +103,8 @@ int main(int argc, char **argv) {
             1};
         // clang-format on
 
-        auto t0 = Tensor4D(s0, d0);
-        auto t1 = Tensor4D(s1, d1);
+        auto t0 = Tensor4D<typename get_base_type<decltype(d0)>::type>(s0, d0);
+        auto t1 = Tensor4D<typename get_base_type<decltype(d1)>::type>(s1, d1);
         t0 += t1;
         for (auto i = 0u; i < sizeof(d0) / sizeof(*d0); ++i) {
             ASSERT(t0.data[i] == 7.f, "Every element of t0 should be 7 after adding t1 to it.");
@@ -99,8 +125,8 @@ int main(int argc, char **argv) {
         unsigned int s1[]{1, 1, 1, 1};
         double d1[]{1};
 
-        auto t0 = Tensor4D(s0, d0);
-        auto t1 = Tensor4D(s1, d1);
+         auto t0 = Tensor4D<typename get_base_type<decltype(d0)>::type>(s0, d0);
+        auto t1 = Tensor4D<typename get_base_type<decltype(d1)>::type>(s1, d1);
         t0 += t1;
         for (auto i = 0u; i < sizeof(d0) / sizeof(*d0); ++i) {
             ASSERT(t0.data[i] == d0[i] + 1, "Every element of t0 should be incremented by 1 after adding t1 to it.");

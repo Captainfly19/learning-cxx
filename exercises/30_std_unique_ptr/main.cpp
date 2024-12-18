@@ -56,9 +56,8 @@ int main(int argc, char **argv) {
 
     std::vector<const char *> answers[]{
         {"fd"},
-        // TODO: 分析 problems[1] 中资源的生命周期，将记录填入 `std::vector`
-        {"", "", "", "", "", "", "", ""},
-        {"", "", "", "", "", "", "", ""},
+        {"ffr", "d"},
+        {"r", "d", "dr", "d"},
     };
 
     // ---- 不要修改以下代码 ----

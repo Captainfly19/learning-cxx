@@ -1,4 +1,5 @@
 #include "../exercise.h"
+#include <cstddef>
 
 // READ: 析构函数 <https://zh.cppreference.com/w/cpp/language/destructor>
 // READ: RAII <https://learn.microsoft.com/zh-cn/cpp/cpp/object-lifetime-and-resource-management-modern-cpp?view=msvc-170>
@@ -11,14 +12,19 @@ class DynFibonacci {
 
 public:
     // TODO: 实现动态设置容量的构造器
-    DynFibonacci(int capacity): cache(new ?), cached(?) {}
+    DynFibonacci(int cap): cache(new size_t[cap+1]), cached(2) {
+        cache[0]=0;
+        cache[1]=1;
+    }
 
     // TODO: 实现析构器，释放缓存空间
-    ~DynFibonacci();
+    ~DynFibonacci(){
+        delete[] cache;
+    };
 
     // TODO: 实现正确的缓存优化斐波那契计算
     size_t get(int i) {
-        for (; false; ++cached) {
+        for (; cached<=i; ++cached) {
             cache[cached] = cache[cached - 1] + cache[cached - 2];
         }
         return cache[i];
@@ -27,6 +33,7 @@ public:
 
 int main(int argc, char **argv) {
     DynFibonacci fib(12);
+    // std::cout<<fib.get(10)<<'\n';
     ASSERT(fib.get(10) == 55, "fibonacci(10) should be 55");
     std::cout << "fibonacci(10) = " << fib.get(10) << std::endl;
     return 0;

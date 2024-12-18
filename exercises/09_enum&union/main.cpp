@@ -8,9 +8,9 @@
 // 因此 `enum` 定义会污染命名空间。
 enum ColorEnum : unsigned char {
     COLOR_RED = 31,
-    COLOR_GREEN,
-    COLOR_YELLOW,
-    COLOR_BLUE,
+    COLOR_GREEN = 32,
+    COLOR_YELLOW = 33,
+    COLOR_BLUE = 34,
 };
 
 // 有作用域枚举型是 C++ 引入的类型安全枚举。
@@ -18,9 +18,9 @@ enum ColorEnum : unsigned char {
 // 作用域枚举型可以避免命名空间污染，并提供类型安全保证。
 enum class Color : int {
     Red = COLOR_RED,
-    Green,
-    Yellow,
-    Blue,
+    Green = COLOR_GREEN,
+    Yellow = COLOR_YELLOW,
+    Blue = COLOR_BLUE,
 };
 
 ColorEnum convert_by_pun(Color c) {
@@ -30,15 +30,19 @@ ColorEnum convert_by_pun(Color c) {
     // 但这种写法实际上仅在 C 语言良定义，在 C++ 中是未定义行为。
     // 这是比较少见的 C++ 不与 C 保持兼容的特性。
     // READ: 类型双关 <https://tttapa.github.io/Pages/Programming/Cpp/Practices/type-punning.html>
-    union TypePun {
-        ColorEnum e;
-        Color c;
-    };
+    // union TypePun {
+    //     ColorEnum e;
+    //     Color c;
+    // };
 
-    TypePun pun;
-    // TODO: 补全类型双关转换
+    // TypePun pun;
+    
+    // // TODO: 补全类型双关转换
+    
 
-    return pun.e;
+    // return pun.e;
+    return static_cast<ColorEnum>(static_cast<int>(c));
+    //用static_cast安全的将Color 转换为 ColorEnum
 }
 
 int main(int argc, char **argv) {

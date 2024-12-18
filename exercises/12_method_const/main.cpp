@@ -4,8 +4,14 @@
 
 struct Fibonacci {
     int numbers[11];
+    constexpr Fibonacci(const int (&arr)[11]):numbers{} {
+        for(int i=0;i<11;++i){
+            numbers[i] = arr[i];
+        }
+    }
     // TODO: 修改方法签名和实现，使测试通过
-    int get(int i) {
+    constexpr int get(int i) const{
+        return numbers[i];
     }
 };
 
