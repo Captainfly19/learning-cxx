@@ -1,4 +1,5 @@
 #include "../exercise.h"
+#include <cstddef>
 
 // READ: 左值右值（概念）<https://learn.microsoft.com/zh-cn/cpp/c-language/l-value-and-r-value-expressions?view=msvc-170>
 // READ: 左值右值（细节）<https://zh.cppreference.com/w/cpp/language/value_category>
@@ -22,7 +23,10 @@ public:
 
     // TODO: 实现移动构造器
     DynFibonacci(DynFibonacci &&other) {
-        cache = std::exchange(other.cache,nullptr);
+        cache = other.cache;
+        cached = other.cached;
+        other.cache = nullptr;
+        other.cached = 0;
     }
 
     // TODO: 实现移动赋值
